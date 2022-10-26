@@ -6,15 +6,18 @@ class Field:
     def __init__(self, value):
         self.value = None # Только создаем (инициализируем) значения
         self.value=value # на этом этапе мы обращаемся и тут активируются сеттеры-геттеры
-        print("field created")
+        #print("field created") 
+
+        
+
+
+   
 
         @property # Превращение метода в поле 
         def value(self):
             return self.value 
-
         @value.setter #Валидация VALUE и запись в поле
         def value(self, value):
-
             if isinstance(value, list):
                 flag=None
                 for check in value:
@@ -25,14 +28,17 @@ class Field:
                 if flag == True:
                     self.value = value
                     return self.value
-
             elif isinstance(value, str):
                 if re.search('[a-z]+\s{1}?[a-z]+?\s{1}?[a-z]+?', value)==True or re.search('\d{2}\.\d{2}\.\d{4}', value)==True or re.search('[\+0-9]+', value)==True:
                     self.value = value
                     return self.value
-
             else:
-                raise Exception("oooops!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")      
+                raise Exception("oooops!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")    
+
+    def __str__(self):
+        return f"{self.value}" 
+    def __repr__(self):
+        return f"{self}" 
 
         
 
@@ -45,12 +51,37 @@ class Field:
 
 class AddressBook(UserDict):
 
+    
+
     def add_record(self, record):
         self.data[record.name.value] = record
 
-    def iterator(self):
+    def iterator(self,N=2):
+        oper_list=[]
+        start=N-N
+        stop=N
 
-        yield {key:value for key,value in self.data in range(2)}
+        for val in self.data.values():            
+            oper_list.append(val)
+        
+        while True:
+            #print(start)
+            #print(stop)
+           
+
+            yield oper_list[start:stop]
+
+            start,stop=start+N,stop+N
+
+
+
+        
+        
+
+
+    
+
+        
 
 
 
@@ -62,7 +93,7 @@ class AddressBook(UserDict):
     
 class Name(Field):
     pass
-
+    
 class Phone(Field):
     pass
     
@@ -73,8 +104,16 @@ class Record(Field):
     def __init__(self, name, phone=None, date=None):
         self.name = Name(name)
         self.phones = []
-        self.b_date = ""
+        self.b_date = None
         self.b_day = None
+
+       
+
+        
+
+
+    def __str__(self):
+        return f'Name: {self.name}\n Phones: {self.phones}\nBirthday: {self.b_date}'
 
     
     def add_phone(self, phone):
@@ -133,6 +172,8 @@ class Record(Field):
             self.b_day =left_days
             return self.b_day##########################
 
+    
+
 
         
 
@@ -175,21 +216,38 @@ def exit_handler():
 #--------------------------------------------------------
 #@input_error
 def show_contacts_handler():
+
+    N=int(input("Please insert number of contacts, you want, to be printed:::"))
     
 
-    i=ADDRESSBOOK.iterator
-      
-       
+    loop=ADDRESSBOOK.iterator(N)
+
    
-    print(i)
+    for i in next(loop):
+ 
+        print(i)
+
+    while True:
+        if input("Press > to continue:") == ">" :
+
+            next(loop)
+
+        else:
+            break
+    
+       
+  
+
 #--------------------------------------------------------
 #@input_error
 def add_contact_handler(name,phone,b_date):
     cl_add_record= Record(name)
     cl_add_record.add_phone(phone)
-    cl_add_record.add_phone(b_date)
-    ADDRESSBOOK.add_record(cl_add_record)
+    cl_add_record.add_date(b_date)
     
+
+    ADDRESSBOOK.add_record(cl_add_record)
+    #print(ADDRESSBOOK)
     #CONTACTS[" ".join(name)]="".join(phone)
     print(f"Contact added {name} {phone} {b_date}")
 #--------------------------------------------------------
@@ -269,7 +327,7 @@ def command_parser(input_data):
 
                 particles_input_data= (input_data.removeprefix(key)).strip()
                 particles_input_data=particles_input_data.split(" ")
-                print(particles_input_data)
+                #print(particles_input_data)
                 
                 for i in  particles_input_data:
 
